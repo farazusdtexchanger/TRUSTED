@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Complete Buy USDT Payment</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+    background:#0b0f1a;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+}
+.container{
+    max-width:420px;
+    margin:40px auto;
+    background:#151a30;
+    padding:25px;
+    border-radius:10px;
+}
+h2{text-align:center;color:#00c6ff;}
+.warning{
+    border:1px solid red;
+    padding:10px;
+    border-radius:5px;
+    background:#2a0000;
+    font-size:13px;
+    margin-bottom:15px;
+}
+.box{
+    background:#0b0f1a;
+    padding:10px;
+    border-radius:5px;
+    margin-top:8px;
+    word-break:break-all;
+}
+.copy{
+    width:100%;
+    padding:10px;
+    background:#00c6ff;
+    border:none;
+    margin-top:10px;
+    cursor:pointer;
+    font-weight:bold;
+}
+.qr{
+    text-align:center;
+    margin:15px 0;
+}
+input[type=file]{
+    width:100%;
+    margin-top:10px;
+}
+button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    font-weight:bold;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+.whatsapp{background:#25D366;}
+.telegram{background:#0088cc;}
+.disabled{opacity:.5;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>Complete Buy USDT Payment</h2>
+
+<div class="warning">
+⚠ Send payment exactly as shown. Wrong payment / fake proof may lead to order rejection.
+</div>
+
+<p><b>Network:</b> <span id="network"></span></p>
+<p><b>USDT You Will Receive:</b> <span id="usdt"></span> USDT</p>
+<p><b>INR You Need to Pay:</b> ₹<span id="inr"></span></p>
+
+<div id="paymentSection"></div>
+
+<div class="qr" id="qrBox"></div>
+
+<input type="file" id="ss" accept="image/*">
+
+<button class="whatsapp disabled" id="waBtn">I Have Paid – WhatsApp</button>
+<button class="telegram disabled" id="tgBtn">I Have Paid – Telegram</button>
+
+</div>
+
+<script>
+/* STATIC DETAILS */
+const UPI_ID = "Q323748540@ybl";
+const BANK = {
+    name: "KOTAK MAHINDRA BANK",
+    holder: "MAHAJABI BANO",
+    acc: "5650386870",
+    ifsc: "KKBK0005702"
+};
+
+/* GET ORDER */
+const order = JSON.parse(localStorage.getItem("currentBuyOrder"));
+if(!order){
+    alert("Invalid Order");
+    location.href="buy-usdt.html";
+}
+
+/* FILL BASIC INFO */
+document.getElementById("network").innerText = order.network;
+document.getElementById("usdt").innerText = order.usdtAmount;
+document.getElementById("inr").innerText = order.inrAmount;
+
+/* PAYMENT DISPLAY */
+const paymentSection = document.getElementById("paymentSection");
+const qrBox = document.getElementById("qrBox");
+
+let paymentText = "";
+
+if(order.paymentMethod === "UPI"){
+    paymentSection.innerHTML = `
+        <b>Send Payment To (UPI)</b>
+        <div class="box" id="payText">${UPI_ID}</div>
+        <button class="copy" onclick="copyText('${UPI_ID}')">Copy UPI</button>
+    `;
+    qrBox.innerHTML = `
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${UPI_ID}">
+    `;
+    paymentText = `UPI: ${UPI_ID}`;
+}
+
+if(order.paymentMethod === "Bank"){
+    paymentSection.innerHTML = `
+        <b>Bank Transfer Details</b>
+        <div class="box">
+        Bank: ${BANK.name}<br>
+        Account Holder: ${BANK.holder}<br>
+        Account No: ${BANK.acc}<br>
+        IFSC: ${BANK.ifsc}
+        </div>
+    `;
+    qrBox.innerHTML = "";
+    paymentText = `
+Bank: ${BANK.name}
+Account Holder: ${BANK.holder}
+Account No: ${BANK.acc}
+IFSC: ${BANK.ifsc}`;
+}
+
+/* COPY */
+function copyText(txt){
+    navigator.clipboard.writeText(txt);
+    alert("Copied");
+}
+
+/* ENABLE BUTTONS AFTER SS */
+document.getElementById("ss").addEventListener("change",()=>{
+    document.getElementById("waBtn").classList.remove("disabled");
+    document.getElementById("tgBtn").classList.remove("disabled");
+});
+
+/* UNIQUE ORDER ID */
+function generateOrderId(){
+    return "BUY" + Date.now() + Math.floor(Math.random()*1000);
+}
+
+/* MESSAGE */
+function buildMessage(){
+    const oid = generateOrderId();
+    const time = new Date().toLocaleString();
+
+    return encodeURIComponent(
+`BUY USDT PAYMENT CONFIRMATION
+
+Order ID: ${oid}
+Time: ${time}
+
+Network: ${order.network}
+USDT Amount: ${order.usdtAmount}
+INR Paid: ₹${order.inrAmount}
+
+Payment Method: ${order.paymentMethod}
+${paymentText}
+
+Wallet Address:
+${order.walletAddress}
+
+Account Holder:
+${order.holderName}`
+    );
+}
+
+/* REDIRECT */
+document.getElementById("waBtn").onclick=()=>{
+    window.open("https://wa.me/9234207456?text="+buildMessage(),"_blank");
+};
+document.getElementById("tgBtn").onclick=()=>{
+    window.open("https://t.me/farazxbackup?text="+buildMessage(),"_blank");
+};
+</script>
+
+</body>
+</html>

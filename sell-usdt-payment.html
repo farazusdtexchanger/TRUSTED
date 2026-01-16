@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>USDT Payment | FARAZ USDT EXCHANGER</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    background:#0b0f1a;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+}
+.container{
+    max-width:420px;
+    margin:40px auto;
+    background:#151a30;
+    padding:25px;
+    border-radius:10px;
+}
+h2{text-align:center;color:#00c6ff;}
+.alert{
+    background:#2a0000;
+    border:1px solid red;
+    padding:10px;
+    border-radius:5px;
+    margin-bottom:15px;
+    font-size:14px;
+}
+.detail{
+    font-size:14px;
+    margin:6px 0;
+}
+.wallet-box{
+    background:#0b0f1a;
+    padding:10px;
+    border-radius:5px;
+    word-break:break-all;
+    font-size:13px;
+}
+.copy{
+    background:#00c6ff;
+    padding:8px;
+    margin-top:8px;
+    border:none;
+    width:100%;
+    cursor:pointer;
+    border-radius:5px;
+    font-weight:bold;
+}
+.qr{
+    text-align:center;
+    margin:15px 0;
+}
+button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    font-weight:bold;
+    border:none;
+    cursor:pointer;
+    border-radius:5px;
+}
+.whatsapp{background:#25D366;color:#000;}
+.telegram{background:#0088cc;color:#fff;}
+.disabled{opacity:0.5;pointer-events:none;}
+input[type=file]{
+    margin-top:12px;
+    width:100%;
+    background:#0b0f1a;
+    color:#fff;
+}
+</style>
+</head>
+<body>
+
+<div class="container" id="page">
+
+<h2>Complete USDT Payment</h2>
+
+<div class="alert" id="warning"></div>
+
+<div class="detail"><b>Network:</b> <span id="network"></span></div>
+<div class="detail"><b>USDT Amount:</b> <span id="amount"></span></div>
+<div class="detail"><b>INR You Will Receive:</b> ₹<span id="inr"></span></div>
+
+<hr style="margin:10px 0;border-color:#1f2a44;">
+
+<div class="detail"><b>Send USDT To This Wallet</b></div>
+<div class="wallet-box" id="wallet"></div>
+<button class="copy" onclick="copyWallet()">Copy Wallet Address</button>
+
+<div class="qr">
+    <img id="qr" width="200" alt="QR Code">
+</div>
+
+<hr style="margin:10px 0;border-color:#1f2a44;">
+
+<div class="detail"><b>Payout Method:</b> <span id="payoutMethod"></span></div>
+<div class="detail"><b>Payout Details:</b> <span id="payoutDetails"></span></div>
+<div class="detail" id="ifscRow" style="display:none;"><b>IFSC:</b> <span id="ifsc"></span></div>
+<div class="detail"><b>Account Holder:</b> <span id="holder"></span></div>
+
+<hr style="margin:10px 0;border-color:#1f2a44;">
+
+<div style="margin-top:15px; font-size:14px; color:#ffb3b3; border:1px solid #ff4d4d; padding:10px; border-radius:5px;">
+⚠️ <b>WARNING:</b> Send USDT <b>ONLY</b> on the selected network.<br>
+Wrong network payment will result in <b>PERMANENT LOSS</b> of funds.
+</div>
+
+<div style="margin-top:15px;">
+    <label style="font-size:14px; color:#ccc;">
+        📤 Upload payment screenshot <b>(required)</b>
+    </label>
+    <input type="file" id="ss" accept="image/*" style="margin-top:8px">
+</div>
+
+<button class="whatsapp disabled" id="waBtn">
+    I Have Paid – WhatsApp
+</button>
+
+<button class="telegram disabled" id="tgBtn">
+    I Have Paid – Telegram
+</button>
+
+</div>
+
+<script>
+/* ================= WALLET ADDRESSES ================= */
+const wallets = {
+    TRC20: "TK1hQ216en9N2pRSvbvchhJqj5g2FCnk5q",
+    ERC20: "0x660395373cb28114e40227e06dd55038ec483926",
+    BEP20: "0x660395373cb28114e40227e06dd55038ec483926"
+};
+
+/* ================= LOAD ORDER ================= */
+const order = JSON.parse(localStorage.getItem("currentSellOrder"));
+
+if(!order || !wallets[order.network]){
+    document.body.innerHTML = "";
+    document.body.style.background = "black";
+    throw new Error("Invalid or missing order data");
+}
+
+/* ================= AUTO FILL ================= */
+document.getElementById("network").innerText = order.network;
+document.getElementById("amount").innerText = order.usdtAmount + " USDT";
+document.getElementById("inr").innerText =
+"₹" + Number(order.inrAmount).toFixed(2);
+document.getElementById("wallet").innerText = wallets[order.network];
+
+document.getElementById("payoutMethod").innerText = order.payoutMethod;
+document.getElementById("payoutDetails").innerText = order.payoutDetails;
+document.getElementById("holder").innerText = order.holderName;
+
+if(order.ifsc){
+    document.getElementById("ifscRow").style.display = "block";
+    document.getElementById("ifsc").innerText = order.ifsc;
+}
+
+/* ================= WARNING ================= */
+document.getElementById("warning").innerText =
+`⚠️ Send USDT ONLY via ${order.network} network. Sending via wrong network will result in permanent loss.`;
+
+/* ================= QR ================= */
+document.getElementById("qr").src =
+`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${wallets[order.network]}`;
+
+/* ================= FUNCTIONS ================= */
+function copyWallet(){
+    navigator.clipboard.writeText(wallets[order.network]);
+    alert("Wallet address copied");
+}
+
+/* ================= ENABLE BUTTONS AFTER SS ================= */
+document.getElementById("ss").addEventListener("change",()=>{
+    document.getElementById("waBtn").classList.remove("disabled");
+    document.getElementById("tgBtn").classList.remove("disabled");
+});
+function generateOrderMeta() {
+    const order = JSON.parse(localStorage.getItem("currentSellOrder"));
+    if (!order) return null;
+
+    // Generate unique order ID
+    const orderId =
+        "USDT-" +
+        Date.now().toString(36).toUpperCase() +
+        "-" +
+        Math.random().toString(36).substring(2, 7).toUpperCase();
+
+    // Timestamp
+    const timestamp = new Date().toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+    });
+
+    order.orderId = orderId;
+    order.timestamp = timestamp;
+
+    localStorage.setItem("currentSellOrder", JSON.stringify(order));
+    return order;
+}
+
+/* ================= SUPPORT LINKS ================= */
+function buildMessage(){
+    return `
+✅ *USDT PAYMENT SENT*
+
+🔹 Network: ${order.network}
+🔹 USDT Amount: ${order.usdtAmount}
+🔹 Wallet Address: ${wallets[order.network]}
+
+💰 Payout Method: ${order.payoutMethod}
+📄 Payout Details: ${order.payoutDetails}
+👤 Account Holder: ${order.accHolder}
+
+📸 Screenshot uploaded
+
+⚠️ Please verify and process my payment.
+    `.trim();
+}
+
+document.getElementById("waBtn").onclick = () => {
+    const order = generateOrderMeta();
+    if (!order) return;
+
+    const msg = `
+✅ *USDT SELL PAYMENT DONE*
+
+🆔 Order ID: ${order.orderId}
+🕒 Time: ${order.timestamp}
+
+🔗 Network: ${order.network}
+💰 USDT Amount: ${order.usdtAmount} USDT
+💵 INR Amount: ₹${Number(order.inrAmount).toFixed(2)}
+
+🏦 Payout Method: ${order.payoutMethod}
+📄 Payout Details: ${order.payoutDetails}
+👤 Account Holder: ${order.holderName}
+
+📸 Screenshot uploaded
+
+Please verify and release INR.
+`;
+
+    window.open(
+        "https://wa.me/9234207456?text=" + encodeURIComponent(msg),
+        "_blank"
+    );
+};
+
+document.getElementById("tgBtn").onclick = () => {
+    const order = generateOrderMeta();
+    if (!order) return;
+
+    const msg = `
+USDT SELL PAYMENT DONE
+
+Order ID: ${order.orderId}
+Time: ${order.timestamp}
+
+Network: ${order.network}
+USDT: ${order.usdtAmount}
+INR: ₹${Number(order.inrAmount).toFixed(2)}
+
+Payout: ${order.payoutMethod}
+Details: ${order.payoutDetails}
+Holder: ${order.holderName}
+
+Screenshot uploaded.
+`;
+
+    window.open(
+        "https://t.me/farazxbackup?text=" + encodeURIComponent(msg),
+        "_blank"
+    );
+};
+</script>
+
+</body>
+</html>

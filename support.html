@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Support | FARAZ USDT EXCHANGER</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #0b0f1a;
+            color: #ffffff;
+        }
+
+        header {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        header p {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        nav {
+            background: #11162a;
+            display: flex;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            color: #00c6ff;
+        }
+
+        section {
+            padding: 50px 20px;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .hero {
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 17px;
+            color: #cccccc;
+        }
+
+        .support-box {
+            background: #151a30;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 40px;
+            border: 1px solid #1f2a44;
+        }
+
+        .support-box h3 {
+            color: #00c6ff;
+            margin-bottom: 10px;
+        }
+
+        .support-box p {
+            margin-bottom: 15px;
+            color: #cccccc;
+        }
+
+        .contact-form {
+            background: #11162a;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: #0b0f1a;
+            border: 1px solid #1f2a44;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .contact-form button {
+            margin-top: 15px;
+            padding: 12px;
+            width: 100%;
+            background: #00c6ff;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .contact-form button:hover {
+            background: #0072ff;
+        }
+
+        footer {
+            background: #0b0f1a;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+            color: #aaaaaa;
+            border-top: 1px solid #1f2a44;
+        }
+
+        @media (max-width: 600px) {
+            .hero h2 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>FARAZ USDT EXCHANGER</h1>
+    <p>Fast • Secure • Trusted</p>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="services.html">Services</a>
+    <a href="rates.html">Rates</a>
+    
+   
+</nav>
+
+<section>
+    <div class="hero">
+        <h2>Support Center</h2>
+        <p>We are here to help you 24/7 with all your USDT exchange needs</p>
+    </div>
+
+    <div class="support-box">
+    <h3>📞 Contact Support</h3>
+    <div class="support-box">
+    <h3>⏱ Support Status</h3>
+    <p id="supportStatus" style="font-weight:bold;">
+        Checking status...
+    </p>
+</div>
+    <p>
+        <strong>WhatsApp Support:</strong><br>
+        <a href="https://wa.me/9234207456" target="_blank" style="color:#00c6ff; text-decoration:none;">
+            CLICK TO CONTACT ON WHATSAPP
+        </a>
+    </p>
+
+    <p>
+        <strong>Telegram Support:</strong><br>
+        <a href="https://t.me/farazxbackup" target="_blank" style="color:#00c6ff; text-decoration:none;">
+             CLICK TO CONTACT ON TELEGRAM
+        </a>
+    </p>
+
+    <p>
+        <strong>Email Support:</strong><br>
+        <a href="mailto:farazusdtexchnager@gmail.com" style="color:#00c6ff; text-decoration:none;">
+            farazusdtexchnager@gmail.com
+        </a>
+    </p>
+</div>
+</section>
+
+<footer>
+    © 2026 FARAZ USDT EXCHANGER. All Rights Reserved.
+</footer>
+
+</a>
+<script>
+    function updateSupportStatus() {
+        const now = new Date();
+
+        // Indian Standard Time (UTC +5:30)
+        const indiaTime = new Date(
+            now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+        );
+
+        const hour = indiaTime.getHours();
+        const statusElement = document.getElementById("supportStatus");
+
+        // ONLINE between 5 AM (10) and 12 AM (22)
+        if (hour >= 5 && hour < 24) {
+            statusElement.innerHTML =
+                '<span style="color:#00ff99;">● Online</span><br>Available on WhatsApp & Telegram';
+        } else {
+            statusElement.innerHTML =
+                '<span style="color:#ff4d4d;">● Offline</span><br>Please leave a message';
+        }
+    }
+
+    updateSupportStatus();
+    setInterval(updateSupportStatus, 60000); // refresh every 1 minute
+</script>
+</body>
+</html>
+
+   

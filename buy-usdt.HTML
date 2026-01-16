@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Buy USDT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+    background:#0b0f1a;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+}
+.container{
+    max-width:500px;
+    margin:40px auto;
+    background:#151a30;
+    padding:25px;
+    border-radius:10px;
+}
+h2{text-align:center;color:#00c6ff;}
+label{
+    display:block;
+    margin-top:15px;
+    font-size:14px;
+    color:#aaa;
+}
+input,select{
+    width:100%;
+    padding:12px;
+    margin-top:6px;
+    border-radius:5px;
+    border:1px solid #1f2a44;
+    background:#0b0f1a;
+    color:#fff;
+}
+.networks{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+.network{
+    flex:1;
+    text-align:center;
+    padding:12px;
+    border:1px solid #1f2a44;
+    border-radius:5px;
+    cursor:pointer;
+}
+.network.active{
+    background:#00c6ff;
+    color:#000;
+}
+.output{
+    margin-top:10px;
+    font-size:16px;
+    color:#00c6ff;
+}
+.error{
+    margin-top:8px;
+    font-size:13px;
+    color:#ff6b6b;
+}
+.terms{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:15px;
+    font-size:13px;
+}
+button{
+    width:100%;
+    margin-top:20px;
+    padding:14px;
+    background:#00c6ff;
+    border:none;
+    border-radius:5px;
+    font-weight:bold;
+    cursor:pointer;
+}
+button:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>Buy USDT</h2>
+
+<!-- INR INPUT -->
+<label>Enter INR Amount</label>
+<input type="number" id="inrAmount" placeholder="Minimum ₹1000">
+
+<div class="output">
+You will receive: <b><span id="usdtAmount">0</span> USDT</b>
+</div>
+<div class="error" id="error"></div>
+
+<!-- NETWORK -->
+<label>Select Network</label>
+<div class="networks">
+    <div class="network" data-net="TRC20">TRC20</div>
+    <div class="network" data-net="ERC20">ERC20</div>
+    <div class="network" data-net="BEP20">BEP20</div>
+</div>
+
+<!-- WALLET -->
+<label>Your USDT Wallet Address</label>
+<input type="text" id="wallet" placeholder="Paste your USDT wallet address">
+
+<!-- PAYMENT METHOD -->
+<label>Select Payment Method</label>
+<select id="payMethod">
+    <option value="">-- Choose --</option>
+    <option value="UPI">UPI</option>
+    <option value="Bank">Bank Transfer</option>
+</select>
+
+<!-- PAYMENT DETAILS -->
+<label id="payLabel">Payment Details</label>
+<input type="text" id="payInput" placeholder="Select payment method" disabled>
+
+<input type="text" id="ifsc" placeholder="Enter IFSC Code" style="display:none;">
+<input type="text" id="holder" placeholder="Account Holder Name">
+
+<!-- TERMS -->
+    <div style="margin-top:15px; font-size:14px; display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="terms" onchange="checkForm()">
+        <span>I agree to the <a href="termsandconditions.html" style="color:#00c6ff;">terms & conditions</a></span>
+    </div>
+
+
+<button id="proceedBtn" disabled>Proceed to Payment</button>
+</div>
+
+<script>
+/* CONFIG */
+const RATE = 95.50;
+const MIN_INR = 1000;
+
+/* ELEMENTS */
+const inrInput = document.getElementById("inrAmount");
+const usdtSpan = document.getElementById("usdtAmount");
+const errorBox = document.getElementById("error");
+const walletInput = document.getElementById("wallet");
+const proceedBtn = document.getElementById("proceedBtn");
+const termsChk = document.getElementById("terms");
+const networks = document.querySelectorAll(".network");
+
+const payMethod = document.getElementById("payMethod");
+const payInput = document.getElementById("payInput");
+const ifscInput = document.getElementById("ifsc");
+const holderInput = document.getElementById("holder");
+const payLabel = document.getElementById("payLabel");
+
+let selectedNetwork = "";
+
+/* CALCULATE */
+function calculate(){
+    const inr = Number(inrInput.value);
+
+    if(!inr || inr < MIN_INR){
+        usdtSpan.innerText = "0";
+        errorBox.innerText = "Minimum buy amount is ₹1000";
+        validate();
+        return;
+    }
+
+    usdtSpan.innerText = (inr / RATE).toFixed(2);
+    errorBox.innerText = "";
+    validate();
+}
+
+/* NETWORK SELECT */
+networks.forEach(net=>{
+    net.onclick=()=>{
+        networks.forEach(n=>n.classList.remove("active"));
+        net.classList.add("active");
+        selectedNetwork = net.dataset.net;
+        validate();
+    }
+});
+
+/* PAYMENT METHOD */
+payMethod.onchange=()=>{
+    const m = payMethod.value;
+    payInput.disabled = false;
+    payInput.value = "";
+    ifscInput.value = "";
+
+    if(m === "UPI"){
+        payLabel.innerText = "UPI ID";
+        payInput.placeholder = "example@upi";
+        ifscInput.style.display = "none";
+    }else if(m === "Bank"){
+        payLabel.innerText = "Account Number";
+        payInput.placeholder = "Enter bank account number";
+        ifscInput.style.display = "block";
+    }else{
+        payInput.disabled = true;
+        payInput.placeholder = "Select payment method";
+        ifscInput.style.display = "none";
+    }
+    validate();
+};
+
+/* VALIDATE */
+function validate(){
+    const inr = Number(inrInput.value);
+    const wallet = walletInput.value.trim();
+    const holder = holderInput.value.trim();
+
+    let payValid = false;
+    if(payMethod.value === "UPI"){
+        payValid = payInput.value.includes("@");
+    }
+    if(payMethod.value === "Bank"){
+        payValid = payInput.value.length > 5 && ifscInput.value.length >= 4;
+    }
+
+    proceedBtn.disabled = !(
+        inr >= MIN_INR &&
+        wallet &&
+        selectedNetwork &&
+        payMethod.value &&
+        payValid &&
+        holder &&
+        termsChk.checked
+    );
+}
+
+/* EVENTS */
+inrInput.oninput = calculate;
+walletInput.oninput = validate;
+payInput.oninput = validate;
+ifscInput.oninput = validate;
+holderInput.oninput = validate;
+termsChk.onchange = validate;
+
+/* SAVE & REDIRECT */
+proceedBtn.onclick=()=>{
+    const order = {
+        inrAmount: Number(inrInput.value),
+        usdtAmount: Number(usdtSpan.innerText),
+        network: selectedNetwork,
+        walletAddress: walletInput.value.trim(),
+        paymentMethod: payMethod.value,
+        paymentDetails: payInput.value.trim(),
+        ifsc: payMethod.value === "Bank" ? ifscInput.value.trim() : "",
+        holderName: holderInput.value.trim()
+    };
+
+    localStorage.setItem("currentBuyOrder", JSON.stringify(order));
+    window.location.href = "buy-usdt-payment.html";
+};
+</script>
+
+</body>
+</html>

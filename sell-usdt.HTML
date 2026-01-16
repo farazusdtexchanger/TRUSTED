@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sell USDT | FARAZ USDT EXCHANGER</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {background:#0b0f1a; color:white; font-family:Arial; margin:0; padding:0;}
+.container {max-width:600px; margin:50px auto; background:#151a30; padding:30px; border-radius:10px;}
+h2 {text-align:center; color:#00c6ff;}
+label {display:block; margin-top:15px; color:#aaa;}
+input[type="number"], input[type="text"], select {
+    width:100%; padding:12px; margin-top:5px;
+    border-radius:5px; border:1px solid #1f2a44;
+    background:#0b0f1a; color:white;
+}
+.networks {display:flex; justify-content:space-between; margin-top:10px;}
+.network {
+    flex:1; padding:10px; text-align:center;
+    margin-right:10px; border:1px solid #1f2a44;
+    border-radius:5px; cursor:pointer;
+}
+.network:last-child {margin-right:0;}
+.network.active {background:#00c6ff; color:#000;}
+button {
+    margin-top:15px; padding:12px; width:100%;
+    background:#00c6ff; border:none; font-weight:bold;
+    cursor:pointer; border-radius:5px;
+}
+button:disabled {
+    background:#2b3a55;
+    cursor:not-allowed;
+}
+.note {margin-top:15px; font-size:14px; color:#ccc;}
+.warning {color:#ff5c5c; font-size:13px; margin-top:5px;}
+.usdt-output {margin-top:8px; font-weight:bold;}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Sell USDT</h2>
+
+    <!-- USDT Amount -->
+    <label>USDT Amount</label>
+    <input type="number" id="usdt" placeholder="Enter USDT amount" oninput="calculateINR()">
+    <div class="warning" id="minWarning" style="display:none;">
+        ⚠️ Minimum sell amount is 10 USDT
+    </div>
+    <div class="usdt-output" id="inrAmount">You will receive: ₹0</div>
+
+    <!-- NETWORK -->
+    <label>Select Network</label>
+    <div class="networks">
+        <div class="network" onclick="selectNetwork(this,'TRC20')">TRC20</div>
+        <div class="network" onclick="selectNetwork(this,'ERC20')">ERC20</div>
+        <div class="network" onclick="selectNetwork(this,'BEP20')">BEP20</div>
+    </div>
+
+    <!-- PAYOUT METHOD -->
+    <label>Select Payout Method</label>
+    <select id="payoutMethod" onchange="updatePayoutInput();checkForm();">
+        <option value="">-- Choose --</option>
+        <option value="UPI">UPI</option>
+        <option value="Bank">Bank Transfer</option>
+    </select>
+
+    <!-- PAYOUT INPUTS -->
+    <div id="payoutInputs">
+        <label id="payoutLabel">Payout Details</label>
+        <input type="text" id="payoutInput" placeholder="Select payout method first" disabled oninput="checkForm()">
+        <input type="text" id="ifscInput" placeholder="Enter IFSC Code" style="display:none; margin-top:10px;" oninput="checkForm()">
+        <input type="text" id="accHolderInput" placeholder="Enter Account Holder Name" style="margin-top:10px;" oninput="checkForm()">
+    </div>
+
+    <!-- TERMS -->
+    <div style="margin-top:15px; font-size:14px; display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="terms" onchange="checkForm()">
+        <span>I agree to the <a href="termsandconditions.html" style="color:#00c6ff;">terms & conditions</a></span>
+    </div>
+
+    <button id="proceedBtn" onclick="proceedToPayment()" disabled>Proceed to Payment</button>
+    <div class="note">⚠️ Ensure payout method and network info are correct.</div>
+</div>
+
+<script>
+const USDT_RATE = 91.50;
+const MIN_USDT = 10;
+let selectedNetwork = "";
+
+function calculateINR() {
+    const usdt = parseFloat(document.getElementById("usdt").value) || 0;
+
+    if(usdt < MIN_USDT){
+        document.getElementById("inrAmount").innerText = "You will receive: ₹0";
+        document.getElementById("minWarning").style.display = "block";
+    } else {
+        document.getElementById("minWarning").style.display = "none";
+        document.getElementById("inrAmount").innerText =
+            "You will receive: ₹" + (usdt * USDT_RATE).toFixed(2);
+    }
+    checkForm();
+}
+
+function selectNetwork(el, network) {
+    selectedNetwork = network;
+    document.querySelectorAll('.network').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    checkForm();
+}
+
+function updatePayoutInput() {
+    const method = document.getElementById("payoutMethod").value;
+    const input = document.getElementById("payoutInput");
+    const ifsc = document.getElementById("ifscInput");
+
+    if(method === "UPI"){
+        input.disabled = false;
+        input.placeholder = "Enter UPI ID";
+        ifsc.style.display = "none";
+    } else if(method === "Bank"){
+        input.disabled = false;
+        input.placeholder = "Enter Bank Account Number";
+        ifsc.style.display = "block";
+    } else {
+        input.disabled = true;
+        input.value = "";
+        ifsc.style.display = "none";
+    }
+}
+
+function checkForm(){
+    const usdt = parseFloat(document.getElementById("usdt").value) || 0;
+    const payoutMethod = document.getElementById("payoutMethod").value;
+    const payoutInput = document.getElementById("payoutInput").value.trim();
+    const accHolder = document.getElementById("accHolderInput").value.trim();
+    const terms = document.getElementById("terms").checked;
+
+    const valid =
+        usdt >= MIN_USDT &&
+        selectedNetwork &&
+        payoutMethod &&
+        payoutInput &&
+        accHolder &&
+        terms;
+
+    document.getElementById("proceedBtn").disabled = !valid;
+}
+
+function proceedToPayment() {
+
+    const usdtAmount = document.getElementById("usdt").value;
+    const payoutMethod = document.getElementById("payoutMethod").value;
+    const payoutDetails = document.getElementById("payoutInput").value.trim();
+    const ifsc = document.getElementById("ifscInput").value.trim();
+    const holderName = document.getElementById("accHolderInput").value.trim();
+    const termsChecked = document.getElementById("terms").checked;
+
+    if(usdtAmount < 10){
+        alert("Minimum sell amount is 10 USDT");
+        return;
+    }
+    if(!selectedNetwork){
+        alert("Please select USDT network");
+        return;
+    }
+    if(!payoutMethod || !payoutDetails || !holderName){
+        alert("Please fill all payout details");
+        return;
+    }
+    if(!termsChecked){
+        alert("You must agree to terms & conditions");
+        return;
+    }
+
+    // ✅ SAVE DATA FOR PAGE-2 (THIS IS THE FIX)
+    const inrAmount = usdtAmount * USDT_RATE;
+
+localStorage.setItem("currentSellOrder", JSON.stringify({
+    usdtAmount: usdtAmount,
+    inrAmount: inrAmount,
+    network: selectedNetwork,
+    payoutMethod: payoutMethod,
+    payoutDetails: payoutDetails,
+    ifsc: ifsc,
+    holderName: holderName
+}));
+
+    // ✅ REDIRECT
+    window.location.href = "sell-usdt-payment.html";
+}
+</script>
+
+</body>
+</html>
