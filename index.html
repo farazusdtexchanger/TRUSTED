@@ -259,9 +259,9 @@ function getFormData() {
     }
 
     let text =
-        "Hello, I need support.%0A%0A" +
-        "Name: " + name + "%0A" +
-        (email ? "Email: " + email + "%0A" : "") +
+        "Hello, I need support." +
+        "Name: " + name + "" +
+        (email ? "Email: " + email + "" : "") +
         "Message: " + message;
 
     return encodeURIComponent(text);
@@ -347,3 +347,4 @@ setInterval(updateSupportButtons, 60000); // check every minute
 </body>
 
 </html>
+
